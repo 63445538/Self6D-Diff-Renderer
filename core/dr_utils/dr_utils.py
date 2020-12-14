@@ -6,7 +6,7 @@ import os.path as osp
 from tqdm import tqdm
 # from kaolin.rep import TriangleMesh
 # from kaolin.graphics import DIBRenderer
-from .rep import TriangleMesh
+from .rep import TriangleMesh, Mesh
 from .dib_renderer_x import DIBRenderer
 from core.utils.pose_utils import quat2mat_torch
 
@@ -38,6 +38,7 @@ def load_objs(obj_paths, texture_paths=None, height=480, width=640):
     for i, obj_path in enumerate(tqdm(obj_paths)):
         model = {}
         mesh = TriangleMesh.from_obj(obj_path)
+        # mesh = Mesh.from_obj(obj_path)
         vertices = mesh.vertices[:, :3]  # x,y,z
         colors = mesh.vertices[:, 3:6]  # rgb
         faces = mesh.faces.int()
@@ -48,6 +49,7 @@ def load_objs(obj_paths, texture_paths=None, height=480, width=640):
         vertices_min = vertices.min()
         vertices_middle = (vertices_max + vertices_min) / 2.0
         vertices = vertices - vertices_middle
+        vertices = vertices / 3
         model["vertices"] = vertices[None, :, :].cuda()
         model["colors"] = colors[None, :, :].cuda()
         model["faces"] = faces[None, :, :].cuda()  # NOTE: -1
